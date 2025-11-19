@@ -17,7 +17,7 @@ export default class RoomManager {
     const newPlayer: Player = {
       id: player.id,
       name: player.name,
-      email: player.email,
+      email: "emailtest@email.com",
       ws,
     };
 
@@ -35,6 +35,8 @@ export default class RoomManager {
     };
 
     this.rooms.set(roomId, room);
+
+    console.log(this.rooms);
 
     ws.send(
       JSON.stringify({

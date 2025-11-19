@@ -13,7 +13,7 @@ export function setupWebSocket(server: any) {
     ws.on("message", (message: string) => {
       try {
         const data = JSON.parse(message.toString());
-
+        
         switch (data.type) {
           case "get-rooms":
             rooms.getRooms(ws);
