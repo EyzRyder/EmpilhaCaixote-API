@@ -1,17 +1,22 @@
 import dotenv from "dotenv";
-import express, { Express, Request, Response } from "express";
 dotenv.config();
+
+import express, { Express, Request, Response } from "express";
 import cors from "cors";
+import http from "http";
+import { setupWebSocket } from "./websocket";
+
 const port = process.env.SERVER_PORT || 8080;
-const server: Express = express();
+
+const app: Express = express();
+const server = http.createServer(app);
 
 const corsConfig = {
-  origin: "http://localhost:3000",
-  credentials: true,
-  optionSuccessStatus: 200,
+  origin: "*",
+  credentials: false,
 };
 
-server
+app
   .use(cors(corsConfig))
   .use(express.json())
   .use(express.urlencoded({ extended: false }))
@@ -20,13 +25,18 @@ server
     next();
   });
 
-server.get("/", (_: Request, res: Response) => {
+//Routes
+app.get("/", (_: Request, res: Response) => {
   res.send({ message: "hello world!" });
 });
 
-server.use((_: Request, res: Response) => {
+app.use((_: Request, res: Response) => {
   res.status(404).send({ message: "page not found" });
 });
+
+//WS
+
+setupWebSocket(server);
 
 server.listen(port, () => {
   console.log(
@@ -36,5 +46,3 @@ server.listen(port, () => {
       port,
   );
 });
-
-export default server;
