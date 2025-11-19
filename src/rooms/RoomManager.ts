@@ -7,9 +7,7 @@ const COLS = 7;
 export default class RoomManager {
   private rooms: Map<string, Room> = new Map();
 
-  // ---------------------------------------------------------
-  // CREATE ROOM
-  // ---------------------------------------------------------
+
   createRoom(ws: any, data: any) {
     const { name, isPrivate, password, player } = data;
 
@@ -47,9 +45,16 @@ export default class RoomManager {
     );
   }
 
-  // ---------------------------------------------------------
-  // JOIN ROOM
-  // ---------------------------------------------------------
+  getRooms(ws: any){
+    ws.send(
+      JSON.stringify({
+        type: "rooms-fetched",
+        rooms:Array.from(this.rooms.entries()).filter(room=>!room[1].isPrivate)
+      }),
+    );
+  }
+
+
   joinRoom(ws: any, data: any) {
     const { roomId, password, player } = data;
     const room = this.rooms.get(roomId);
@@ -87,9 +92,7 @@ export default class RoomManager {
     });
   }
 
-  // ---------------------------------------------------------
-  // READY
-  // ---------------------------------------------------------
+
   setReady(ws: any, roomId: string, playerId: string) {
     const room = this.rooms.get(roomId);
     if (!room) return;
@@ -115,9 +118,7 @@ export default class RoomManager {
     }
   }
 
-  // ---------------------------------------------------------
-  // PLAY (CONECT-4)
-  // ---------------------------------------------------------
+
   playMove(ws: any, data: any) {
     const { roomId, playerId, column } = data;
     const room = this.rooms.get(roomId);
@@ -145,9 +146,7 @@ export default class RoomManager {
     room.turn = room.turn === 0 ? 1 : 0;
   }
 
-  // ---------------------------------------------------------
-  // CONNECT 4 PHYSICS (drop disc)
-  // ---------------------------------------------------------
+
   private dropDisc(board: number[][], column: number, player: number): number {
     for (let row = 5; row >= 0; row--) {
       if (board[row][column] === 0) {
@@ -158,9 +157,6 @@ export default class RoomManager {
     return -1;
   }
 
-  // ---------------------------------------------------------
-  // BROADCAST
-  // ---------------------------------------------------------
   private broadcast(roomId: string, message: any) {
     const room = this.rooms.get(roomId);
     if (!room) return;

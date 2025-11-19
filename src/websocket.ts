@@ -15,6 +15,9 @@ export function setupWebSocket(server: any) {
         const data = JSON.parse(message.toString());
 
         switch (data.type) {
+          case "get-rooms":
+            rooms.getRooms(ws);
+            break;
           case "create-room":
             rooms.createRoom(ws, data);
             break;
@@ -24,7 +27,7 @@ export function setupWebSocket(server: any) {
             break;
 
           case "ready":
-            rooms.setReady(ws, data.roomId);
+            rooms.setReady(ws, data.roomId,data.playerId);
             break;
 
           case "play":
