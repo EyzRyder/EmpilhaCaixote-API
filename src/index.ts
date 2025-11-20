@@ -8,8 +8,9 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
 import { setupWebSocket } from "./websocket";
 import authRoutes from "./modules/auth/auth.routes";
+import walletRoutes from "./modules/wallet/wallet.routes";
 
-export const PORT = process.env.SERVER_PORT || "8080";
+const PORT = process.env.SERVER_PORT || "8080";
 
 const app: Express = express();
 const server = http.createServer(app);
@@ -34,6 +35,7 @@ app.get("/", (_: Request, res: Response) => {
 });
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec(PORT)));
 app.use("/auth", authRoutes);
+app.use("/wallet", walletRoutes);
 app.use((_: Request, res: Response) => {
   res.status(404).send({ message: "page not found" });
 });
