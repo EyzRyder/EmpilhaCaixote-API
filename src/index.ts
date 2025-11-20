@@ -4,10 +4,12 @@ dotenv.config();
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import http from "http";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./docs/swagger";
 import { setupWebSocket } from "./websocket";
 import authRoutes from "./modules/auth/auth.routes";
 
-const port = process.env.SERVER_PORT || 8080;
+export const PORT = process.env.SERVER_PORT || 8080;
 
 const app: Express = express();
 const server = http.createServer(app);
@@ -30,6 +32,7 @@ app
 app.get("/", (_: Request, res: Response) => {
   res.send({ message: "hello world!" });
 });
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/auth", authRoutes);
 app.use((_: Request, res: Response) => {
   res.status(404).send({ message: "page not found" });
@@ -39,11 +42,11 @@ app.use((_: Request, res: Response) => {
 
 setupWebSocket(server);
 
-server.listen(port, () => {
+server.listen(PORT, () => {
   console.log(
     "[Server] Ready > The server is running on 0.0.0.0:" +
-      port +
+      PORT +
       ", url: http://localhost:" +
-      port,
+      PORT,
   );
 });
