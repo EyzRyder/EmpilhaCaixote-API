@@ -5,9 +5,12 @@ export interface AuthRequest extends Request {
   user?: { id: string };
 }
 
-export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
+export function authMiddleware(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) {
   const header = req.headers.authorization;
-console.log(req.headers);
 
   if (!header || !header.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Missing or invalid token." });
@@ -21,7 +24,7 @@ console.log(req.headers);
 
     const decoded = jwt.verify(token, secret) as { userId: string };
 
-    req.user = {id:decoded.userId};
+    req.user = { id: decoded.userId };
 
     next();
   } catch (err) {
