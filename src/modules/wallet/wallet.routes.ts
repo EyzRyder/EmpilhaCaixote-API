@@ -13,6 +13,13 @@ const controller = new WalletController(service);
 
 /**
  * @swagger
+ * tags:
+ *   name: Wallet
+ *   description: Buy coins and dimonds
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     WalletUpdateRequest:

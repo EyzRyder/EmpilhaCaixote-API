@@ -11,6 +11,13 @@ const service = new AuthService(repo);
 const controller = new AuthController(service);
 
 /**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: User Info
+ */
+
+/**
  * @openapi
  * /auth/register:
  *   post:
