@@ -1,9 +1,6 @@
 import { Player, Room } from "../types";
 import { generateRoomCode } from "../helper";
 
-const ROWS = 6;
-const COLS = 7;
-
 export default class RoomManager {
   private rooms: Map<string, Room> = new Map();
 
@@ -36,8 +33,6 @@ export default class RoomManager {
 
     this.rooms.set(roomId, room);
 
-    console.log(this.rooms);
-
     ws.send(
       JSON.stringify({
         type: "room-created",
@@ -45,13 +40,17 @@ export default class RoomManager {
         room,
       }),
     );
+    this.broadcast(roomId, {
+      type: "rooms-update",
+      rooms:Array.from(this.rooms.entries()).filter(room=>!room[1].isPrivate).map(room=>room[1]),
+    });
   }
 
   getRooms(ws: any){
     ws.send(
       JSON.stringify({
         type: "rooms-fetched",
-        rooms:Array.from(this.rooms.entries()).filter(room=>!room[1].isPrivate)
+        rooms:Array.from(this.rooms.entries()).filter(room=>!room[1].isPrivate).map(room=>room[1])
       }),
     );
   }
