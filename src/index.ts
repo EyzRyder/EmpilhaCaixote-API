@@ -33,7 +33,11 @@ app
 app.get("/", (_: Request, res: Response) => {
   res.send({ message: "hello world!" });
 });
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec(PORT)));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec(PORT))
+);
 app.use("/auth", authRoutes);
 app.use("/wallet", walletRoutes);
 app.use((_: Request, res: Response) => {

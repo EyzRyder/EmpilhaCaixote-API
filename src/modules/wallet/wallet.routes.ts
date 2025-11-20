@@ -3,6 +3,7 @@ import { WalletRepository } from "./wallet.repository";
 import { WalletService } from "./wallet.service";
 import { WalletController } from "./wallet.controller";
 import { db } from "../../db/db";
+import { authMiddleware } from "../../middleware/auth.middleware";
 
 const router = Router();
 
@@ -87,6 +88,6 @@ const controller = new WalletController(service);
  *                   type: string
  *                   example: User not found
  */
-router.put("/:userId", controller.updateWallet);
+router.put("/:userId", authMiddleware,controller.updateWallet);
 
 export default router;
