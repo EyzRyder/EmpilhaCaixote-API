@@ -6,8 +6,9 @@
     "start": "node dist/src/index.js",
     "dev": "tsx watch src/index.ts",
     "build": "tsup src",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:generate": "drizzle-kit generate --config ./src/db/drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config ./src/db/drizzle.config.ts",
+    "db:push":"drizzle-kit push --config ./src/db/drizzle.config.ts"
   },
   "keywords": [],
   "author": "EzyRyder",

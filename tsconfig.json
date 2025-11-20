@@ -16,5 +16,5 @@
     "isolatedModules": false,
     "skipLibCheck": true
   },
-  "exclude": ["drizzle.config.ts"]
+  "exclude": ["src/db/drizzle.config.ts"]
 }

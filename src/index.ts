@@ -9,7 +9,7 @@ import { swaggerSpec } from "./docs/swagger";
 import { setupWebSocket } from "./websocket";
 import authRoutes from "./modules/auth/auth.routes";
 
-export const PORT = process.env.SERVER_PORT || 8080;
+export const PORT = process.env.SERVER_PORT || "8080";
 
 const app: Express = express();
 const server = http.createServer(app);
@@ -32,7 +32,7 @@ app
 app.get("/", (_: Request, res: Response) => {
   res.send({ message: "hello world!" });
 });
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec(PORT)));
 app.use("/auth", authRoutes);
 app.use((_: Request, res: Response) => {
   res.status(404).send({ message: "page not found" });
