@@ -15,5 +15,6 @@
     "strict": true,
     "isolatedModules": false,
     "skipLibCheck": true
-  }
+  },
+  "exclude": ["drizzle.config.ts"]
 }
