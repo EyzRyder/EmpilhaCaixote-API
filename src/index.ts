@@ -9,6 +9,7 @@ import { swaggerSpec } from "./docs/swagger";
 import { setupWebSocket } from "./websocket";
 import authRoutes from "./modules/auth/auth.routes";
 import walletRoutes from "./modules/wallet/wallet.routes";
+import shopRouter  from "./modules/shop/shop.routes";
 
 const PORT = process.env.SERVER_PORT || "8080";
 
@@ -40,6 +41,7 @@ app.use(
 );
 app.use("/auth", authRoutes);
 app.use("/wallet", walletRoutes);
+app.use("/shop", shopRouter);
 app.use((_: Request, res: Response) => {
   res.status(404).send({ message: "page not found" });
 });
