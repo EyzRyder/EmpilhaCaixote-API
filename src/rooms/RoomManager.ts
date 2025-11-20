@@ -87,7 +87,7 @@ export default class RoomManager {
     const newPlayer: Player = {
       id: player.id,
       name: player.name,
-      email: player.email,
+      email: "emailtest@email.com",
       ws,
     };
 
@@ -95,7 +95,7 @@ export default class RoomManager {
 
     this.broadcastByRoom(roomId, {
       type: "player-joined",
-      players: room.players.map((p) => ({ id: p.id, name: p.name })),
+      room
     });
   }
 
@@ -179,7 +179,10 @@ export default class RoomManager {
     room.players.forEach((p) => {
       try {
         p.ws.send(JSON.stringify(message));
-      } catch (_) {}
+      } catch (err) {
+        console.error(err);
+        
+      }
     });
   }
 }
