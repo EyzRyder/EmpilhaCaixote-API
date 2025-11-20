@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { WalletService } from "./wallet.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 
