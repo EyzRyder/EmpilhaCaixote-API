@@ -1,11 +1,17 @@
 import { Player, Room } from "../types";
 import { generateRoomCode } from "../helper";
+import { WebSocketServer ,WebSocket} from "ws";
 
 export default class RoomManager {
   private rooms: Map<string, Room> = new Map();
+  private wss: WebSocketServer;
 
 
-  createRoom(ws: any, data: any) {
+  constructor(wss: WebSocketServer) {
+    this.wss = wss;
+  }
+
+  createRoom(ws: WebSocket,data: any) {
     const { name, isPrivate, password, player } = data;
 
     const roomId = generateRoomCode(); // ID usado para conectar
@@ -40,13 +46,13 @@ export default class RoomManager {
         room,
       }),
     );
-    this.broadcast(roomId, {
-      type: "rooms-update",
+    this.broadcast({
+      type: "rooms-updated",
       rooms:Array.from(this.rooms.entries()).filter(room=>!room[1].isPrivate).map(room=>room[1]),
     });
   }
 
-  getRooms(ws: any){
+  getRooms(ws: WebSocket){
     ws.send(
       JSON.stringify({
         type: "rooms-fetched",
@@ -56,7 +62,7 @@ export default class RoomManager {
   }
 
 
-  joinRoom(ws: any, data: any) {
+  joinRoom(ws: WebSocket, data: any) {
     const { roomId, password, player } = data;
     const room = this.rooms.get(roomId);
 
@@ -87,20 +93,20 @@ export default class RoomManager {
 
     room.players.push(newPlayer);
 
-    this.broadcast(roomId, {
+    this.broadcastByRoom(roomId, {
       type: "player-joined",
       players: room.players.map((p) => ({ id: p.id, name: p.name })),
     });
   }
 
 
-  setReady(ws: any, roomId: string, playerId: string) {
+  setReady(ws: WebSocket, roomId: string, playerId: string) {
     const room = this.rooms.get(roomId);
     if (!room) return;
 
     room.ready[playerId] = true;
 
-    this.broadcast(roomId, {
+    this.broadcastByRoom(roomId, {
       type: "ready-update",
       ready: room.ready,
     });
@@ -112,7 +118,7 @@ export default class RoomManager {
       room.ready[room.players[1].id]
     ) {
       room.gameStarted = true;
-      this.broadcast(roomId, {
+      this.broadcastByRoom(roomId, {
         type: "start-game",
         room,
       });
@@ -120,7 +126,7 @@ export default class RoomManager {
   }
 
 
-  playMove(ws: any, data: any) {
+  playMove(ws: WebSocket, data: any) {
     const { roomId, playerId, column } = data;
     const room = this.rooms.get(roomId);
     if (!room) return;
@@ -135,8 +141,8 @@ export default class RoomManager {
     const row = this.dropDisc(room.board, column, room.turn + 1);
     if (row === -1) return; // coluna cheia
 
-    // broadcast da jogada
-    this.broadcast(roomId, {
+    // broadcastByRoom da jogada
+    this.broadcastByRoom(roomId, {
       type: "play",
       row,
       column,
@@ -158,7 +164,15 @@ export default class RoomManager {
     return -1;
   }
 
-  private broadcast(roomId: string, message: any) {
+  private broadcast(message: any) {
+    for (const client of this.wss.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(message));
+      }
+    }
+  }
+
+  private broadcastByRoom(roomId: string, message: any) {
     const room = this.rooms.get(roomId);
     if (!room) return;
 

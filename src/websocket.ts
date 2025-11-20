@@ -3,7 +3,7 @@ import RoomManager from "./rooms/RoomManager";
 
 export function setupWebSocket(server: any) {
   const wss = new WebSocketServer({ server });
-  const rooms = new RoomManager();
+  const rooms = new RoomManager(wss);
 
   console.log("[WS] WebSocket server initialized");
 
