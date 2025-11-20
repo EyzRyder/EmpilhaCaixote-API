@@ -5,6 +5,7 @@ import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import http from "http";
 import { setupWebSocket } from "./websocket";
+import authRoutes from "./modules/auth/auth.routes";
 
 const port = process.env.SERVER_PORT || 8080;
 
@@ -29,7 +30,7 @@ app
 app.get("/", (_: Request, res: Response) => {
   res.send({ message: "hello world!" });
 });
-
+app.use("/auth", authRoutes);
 app.use((_: Request, res: Response) => {
   res.status(404).send({ message: "page not found" });
 });
