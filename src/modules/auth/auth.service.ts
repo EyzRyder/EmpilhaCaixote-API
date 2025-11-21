@@ -14,7 +14,13 @@ export class AuthService {
     const userId = randomUUID();
 
     const user = await this.repo.createUser(userId, username, hashed);
-    return user;
+
+    if (!user) throw new Error("Error ao criar usuario");
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+      expiresIn: "7d",
+    });
+    return { token, user };
   }
 
   async login(username: string, password: string) {
@@ -24,11 +30,9 @@ export class AuthService {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new Error("Credenciais inválidas");
 
-    const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+      expiresIn: "7d",
+    });
 
     return { token, user };
   }

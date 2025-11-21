@@ -8,7 +8,7 @@ export class AuthController {
     try {
       const { username, password } = req.body;
       const user = await this.service.register(username, password);
-      res.status(201).json({ message: "Registrado!", user });
+      res.status(201).json(user);
     } catch (err: any) {
       res.status(400).json({ error: err.message });
     }
