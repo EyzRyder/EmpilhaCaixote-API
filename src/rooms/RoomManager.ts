@@ -1,34 +1,37 @@
-import { Player, Room } from "../types";
+import { Player, Room, User } from "../types";
 import { generateRoomCode } from "../helper";
-import { WebSocketServer ,WebSocket} from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 
 export default class RoomManager {
   private rooms: Map<string, Room> = new Map();
   private wss: WebSocketServer;
 
-
   constructor(wss: WebSocketServer) {
     this.wss = wss;
   }
 
-  createRoom(ws: WebSocket,data: any) {
-    const { name, isPrivate, password, player } = data;
+  createRoom(ws: WebSocket, data: any) {
+    const { isPrivate, user } = data as {
+      isPrivate: boolean;
+      user: Pick<User, "id" | "username">;
+    };
 
     const roomId = generateRoomCode(); // ID usado para conectar
 
-    // Players no createRoom já chegam como objeto básico
     const newPlayer: Player = {
-      id: player.id,
-      name: player.name,
-      email: "emailtest@email.com",
+      id: user.id,
+      username: user.username,
       ws,
     };
 
+    if (this.rooms.has(roomId)) {
+      console.log("Sala já tem esse codigo");
+    }
+
     const room: Room = {
       id: roomId,
-      name,
+      name: "Sala de " + user.username,
       isPrivate,
-      password: isPrivate ? password : undefined,
       players: [newPlayer],
       maxPlayers: 2,
       ready: {},
@@ -42,28 +45,33 @@ export default class RoomManager {
     ws.send(
       JSON.stringify({
         type: "room-created",
-        roomId,
         room,
       }),
     );
     this.broadcast({
       type: "rooms-updated",
-      rooms:Array.from(this.rooms.entries()).filter(room=>!room[1].isPrivate).map(room=>room[1]),
+      rooms: Array.from(this.rooms.entries())
+        .filter((room) => !room[1].isPrivate)
+        .map((room) => room[1]),
     });
   }
 
-  getRooms(ws: WebSocket){
+  getRooms(ws: WebSocket) {
     ws.send(
       JSON.stringify({
-        type: "rooms-fetched",
-        rooms:Array.from(this.rooms.entries()).filter(room=>!room[1].isPrivate).map(room=>room[1])
+        type: "rooms-updated",
+        rooms: Array.from(this.rooms.entries())
+          .filter((room) => !room[1].isPrivate)
+          .map((room) => room[1]),
       }),
     );
   }
 
-
   joinRoom(ws: WebSocket, data: any) {
-    const { roomId, password, player } = data;
+    const { roomId, user } = data as {
+      roomId: string;
+      user: Pick<User, "id" | "username">;
+    };
     const room = this.rooms.get(roomId);
 
     if (!room) {
@@ -72,22 +80,40 @@ export default class RoomManager {
       );
     }
 
-    if (room.players.length >= room.maxPlayers) {
-      return ws.send(
-        JSON.stringify({ type: "error", message: "Sala cheia" }),
+    const userAlreadyInRoom = room.players.find((p) => p.id == user.id);
+    if (userAlreadyInRoom) {
+      room.players = room.players.map((p) => {
+        return p.id == user.id ? { ...p, ws: ws } : p;
+      });
+      this.rooms.set(roomId, room);
+      console.log(room.players);
+      ws.send(
+        JSON.stringify({
+          type: "player-reentered",
+          room,
+        }),
       );
     }
 
-    if (room.isPrivate && room.password !== password) {
-      return ws.send(
-        JSON.stringify({ type: "error", message: "Senha incorreta" }),
-      );
+    for (const room of this.rooms.values()) {
+      const userInRoom = room.players.filter((p) => p.id == user.id);
+      if (userInRoom.length > 0) {
+        return ws.send(
+          JSON.stringify({
+            type: "error",
+            message: "Usuário já esta numa sala",
+          }),
+        );
+      }
+    }
+
+    if (room.players.length >= room.maxPlayers) {
+      return ws.send(JSON.stringify({ type: "error", message: "Sala cheia" }));
     }
 
     const newPlayer: Player = {
-      id: player.id,
-      name: player.name,
-      email: "emailtest@email.com",
+      id: user.id,
+      username: user.username,
       ws,
     };
 
@@ -95,16 +121,17 @@ export default class RoomManager {
 
     this.broadcastByRoom(roomId, {
       type: "player-joined",
-      room
+      room,
     });
   }
 
+  setReady(data: any) {
+    const { roomId, user } = data as { roomId: string; user: Pick<User, "id"> };
 
-  setReady(ws: WebSocket, roomId: string, playerId: string) {
     const room = this.rooms.get(roomId);
     if (!room) return;
 
-    room.ready[playerId] = true;
+    room.ready[user.id] = true;
 
     this.broadcastByRoom(roomId, {
       type: "ready-update",
@@ -124,7 +151,6 @@ export default class RoomManager {
       });
     }
   }
-
 
   playMove(ws: WebSocket, data: any) {
     const { roomId, playerId, column } = data;
@@ -153,7 +179,6 @@ export default class RoomManager {
     room.turn = room.turn === 0 ? 1 : 0;
   }
 
-
   private dropDisc(board: number[][], column: number, player: number): number {
     for (let row = 5; row >= 0; row--) {
       if (board[row][column] === 0) {
@@ -181,7 +206,6 @@ export default class RoomManager {
         p.ws.send(JSON.stringify(message));
       } catch (err) {
         console.error(err);
-        
       }
     });
   }

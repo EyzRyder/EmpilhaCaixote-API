@@ -27,7 +27,7 @@ export function setupWebSocket(server: any) {
             break;
 
           case "ready":
-            rooms.setReady(ws, data.roomId,data.playerId);
+            rooms.setReady(data);
             break;
 
           case "play":
