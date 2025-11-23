@@ -25,7 +25,9 @@ export default class RoomManager {
     };
 
     if (this.rooms.has(roomId)) {
-      console.log("Sala já tem esse codigo");
+      return ws.send(
+        JSON.stringify({ type: "error", message: "Error ao criar Sala" }),
+      );
     }
 
     const room: Room = {
@@ -86,7 +88,6 @@ export default class RoomManager {
         return p.id == user.id ? { ...p, ws: ws } : p;
       });
       this.rooms.set(roomId, room);
-      console.log(room.players);
       ws.send(
         JSON.stringify({
           type: "player-reentered",
