@@ -21,7 +21,11 @@ export type Room = {
   board: number[][]; // connect 4 6x7
   turn: number; // index do jogador (0 ou 1)
   gameStarted: boolean;
+  blockedColumns: number[]; 
+  timer?: NodeJS.Timeout;  
+  timeLeft: number;
 };
+
 export type User = InferSelectModel<typeof profiles>;
 
 export type ShopSkins = InferSelectModel<typeof shopSkins>;
