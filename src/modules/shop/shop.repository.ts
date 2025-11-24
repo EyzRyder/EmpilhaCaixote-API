@@ -70,4 +70,11 @@ export class ShopRepository {
             .set({ coins: newCoins })
             .where(eq(schema.profiles.id, userId));
     }
+
+    async updateWallet(userId: string, newCoins: number, newGems: number) {
+        await this.db
+            .update(schema.profiles)
+            .set({ coins: newCoins, gems: newGems })
+            .where(eq(schema.profiles.id, userId));
+    }
 }

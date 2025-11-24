@@ -32,7 +32,7 @@ export const shopSkins = sqliteTable("shop_skins", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   description: text("description"),
-  priceCoins: integer("price_coins").notNull().default(0),
+  priceGems: integer("price_gems").notNull().default(0),
   skinType: text("skin_type").notNull(), // claw | player | scenario
   iconUrl: text("icon_url"),
 });
