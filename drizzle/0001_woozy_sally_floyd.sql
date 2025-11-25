@@ -1,0 +1,1 @@
+ALTER TABLE `shop_skins` RENAME COLUMN "price_coins" TO "price_gems";

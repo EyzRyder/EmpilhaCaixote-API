@@ -1,9 +1,13 @@
 import { InferSelectModel } from "drizzle-orm";
 import {
-	profiles,
-	shopPowers,
-	shopSkins,
-	userEquippedItems,
+  profiles,
+  shopCoinPacks,
+  shopGemPacks,
+  shopPowers,
+  shopSkins,
+  userEquippedItems,
+  userPowers,
+  userSkins,
 } from "./db/schema";
 import { WebSocket } from "ws";
 
@@ -35,3 +39,11 @@ export type ShopSkins = InferSelectModel<typeof shopSkins>;
 export type UserEquippedItems = InferSelectModel<typeof userEquippedItems>;
 
 export type ShopPowers = InferSelectModel<typeof shopPowers>;
+
+export type ShopGemPacks = InferSelectModel<typeof shopGemPacks>;
+
+export type ShopCoinPacks = InferSelectModel<typeof shopCoinPacks>;
+
+export type UserPowers = InferSelectModel<typeof userPowers>;
+
+export type UserSkins = InferSelectModel<typeof userSkins>;

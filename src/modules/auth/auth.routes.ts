@@ -3,6 +3,7 @@ import { AuthRepository } from "./auth.repository";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { db } from "../../db/db";
+import { authMiddleware } from "../../middleware/auth.middleware";
 
 const router = Router();
 
@@ -74,5 +75,21 @@ router.post("/register", controller.register);
  *         description: Invalid credentials
  */
 router.post("/login", controller.login);
+
+/**
+ * @openapi
+ * /auth:
+ *   get:
+ *     tags:
+ *       - Auth
+ *     summary: Authenticate user and return token
+ *     responses:
+ *       200:
+ *         description: Successfully logged in
+ *       401:
+ *         description: Invalid credentials
+ */
+router.get("/", authMiddleware, controller.getUser);
+
 
 export default router;
