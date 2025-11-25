@@ -54,7 +54,7 @@ export default class RoomManager {
 
         room.gameStarted = true;
         room.board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-        room.turn = Math.floor(Math.random() * 2);
+        room.turn = 0;
 
 		// Broadcast both aliases
 		const payload = {
@@ -68,8 +68,14 @@ export default class RoomManager {
 		});
 		this.broadcastByRoom(roomId, { type: "start-game", content: payload });
 
-		// start turn timer
-		this.startTurnTimer(room);
+		this.broadcastByRoom(roomId, {
+			type: "turn-start",
+			content: {
+				playerId: room.players[room.turn].id,
+				timeLeft: TURN_TIME_MAX,
+			},
+		});
+		this.startTurnTimer(room, true);
 	}
 
 	/**
@@ -615,6 +621,8 @@ export default class RoomManager {
 			default:
 				console.warn(`[POWER] Poder desconhecido: ${powerType}`);
 		}
+
+		this.validateAfterPower(room);
 	}
 
 	/**
@@ -742,7 +750,7 @@ export default class RoomManager {
             room.board = Array.from({ length: ROWS }, () =>
                 Array(COLS).fill(0)
             );
-            room.turn = Math.floor(Math.random() * 2);
+            room.turn = 0;
 
 			// Broadcast início de jogo para os players
 			const broadcastContent = {
@@ -761,8 +769,14 @@ export default class RoomManager {
 				content: broadcastContent,
 			});
 
-			// Inicia o timer do turno
-			this.startTurnTimer(room);
+			this.broadcastByRoom(room.id, {
+				type: "turn-start",
+				content: {
+					playerId: room.players[room.turn].id,
+					timeLeft: TURN_TIME_MAX,
+				},
+			});
+			this.startTurnTimer(room, true);
 		}
 	}
 
@@ -770,20 +784,21 @@ export default class RoomManager {
 	// GESTÃO DE TEMPO E TURNOS
 	// =========================================================================
 
-	private startTurnTimer(room: Room) {
+	private startTurnTimer(room: Room, silent: boolean = false) {
 		this.stopTimer(room); // Garante que não tem timer anterior
 
 		room.timeLeft = TURN_TIME_MAX;
 		const currentPlayerId = room.players[room.turn].id;
 
-		// Notifica front-end para iniciar contagem visual
-		this.broadcastByRoom(room.id, {
-			type: "turn-start",
-			content: {
-				playerId: currentPlayerId,
-				timeLeft: room.timeLeft,
-			},
-		});
+		if (!silent) {
+			this.broadcastByRoom(room.id, {
+				type: "turn-start",
+				content: {
+					playerId: currentPlayerId,
+					timeLeft: room.timeLeft,
+				},
+			});
+		}
 
 		room.timer = setTimeout(() => {
 			this.handleTurnTimeout(room);
@@ -987,10 +1002,30 @@ export default class RoomManager {
 		if (!message) return message;
 		const payload: any = { ...(message || {}) };
 		if (message.content && typeof message.content === "object") {
-			// Avoid overwriting `type` when content contains `type`.
 			const { type, ...rest } = message.content;
 			Object.assign(payload, rest);
 		}
 		return payload;
 	}
+
+	private validateAfterPower(room: Room) {
+		const win1 = this.checkWin(room.board, 1);
+		const win2 = this.checkWin(room.board, 2);
+		if (win1 && win2) {
+			this.endGame(room, "tie");
+			return;
+		}
+		if (win1) {
+			this.endGame(room, room.players[0]?.id ?? "tie");
+			return;
+		}
+		if (win2) {
+			this.endGame(room, room.players[1]?.id ?? "tie");
+			return;
+		}
+		if (this.checkTie(room.board)) {
+			this.endGame(room, "tie");
+		}
+	}
+
 }
