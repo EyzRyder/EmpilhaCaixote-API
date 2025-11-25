@@ -4,7 +4,7 @@ import { AuthRepository } from "./auth.repository";
 import { randomUUID } from "crypto";
 
 export class AuthService {
-  constructor(private repo: AuthRepository) {}
+  constructor(private repo: AuthRepository) { }
 
   async register(username: string, password: string) {
     const existing = await this.repo.findByUsername(username);
@@ -35,5 +35,12 @@ export class AuthService {
     });
 
     return { token, user };
+  }
+
+  async getUser(userId: string) {
+    const user = await this.repo.findById(userId);
+    if (!user) throw new Error("Credenciais inválidas");
+
+    return user;
   }
 }

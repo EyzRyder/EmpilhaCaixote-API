@@ -3,7 +3,7 @@ import { ShopService } from "./shop.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 
 export class ShopController {
-  constructor(private service: ShopService) {}
+  constructor(private service: ShopService) { }
 
   listSkins = async (_req: Request, res: Response) => {
     const skins = await this.service.listSkins();
@@ -19,6 +19,7 @@ export class ShopController {
 
       res.json({ message: "Skin purchased" });
     } catch (e: any) {
+      console.error(e);
       res.status(400).json({ error: e.message });
     }
   };
@@ -37,6 +38,7 @@ export class ShopController {
 
       res.json({ message: "Power purchased" });
     } catch (e: any) {
+      console.error(e);
       res.status(400).json({ error: e.message });
     }
   };
@@ -45,16 +47,17 @@ export class ShopController {
     try {
       const userId = req.user!.id;
       // Garanta que 'amount' é um número. Usar Number() já está presente na sua controller, mas é bom reforçar.
-      const { gemsAmount } = req.body; 
+      const { gemsAmount } = req.body;
 
       const result = await this.service.addGems(userId, Number(gemsAmount ?? 0));
 
       // Desestrutura o resultado do service (result) diretamente na resposta JSON
-      res.json({ 
-        message: "Gem purchased", 
+      res.json({
+        message: "Gem purchased",
         newGems: result.newGems // Adiciona newGems diretamente
       });
     } catch (e: any) {
+      console.error(e);
       res.status(400).json({ error: e.message });
     }
   };
@@ -62,16 +65,17 @@ export class ShopController {
   exchangeCoins = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user!.id;
-      const { coinsAmount, gemsPrice } = req.body; 
+      const { coinsAmount, gemsPrice } = req.body;
       console.log(coinsAmount, gemsPrice);
-      
+
       const result = await this.service.exchangeCoinsForGems(userId, Number(coinsAmount ?? 0), Number(gemsPrice ?? 0));
-      res.json({ 
-        message: "Coins purchased", 
-        newCoins: result.newCoins, 
+      res.json({
+        message: "Coins purchased",
+        newCoins: result.newCoins,
         newGems: result.newGems
       });
     } catch (e: any) {
+      console.error(e);
       res.status(400).json({ error: e.message });
     }
   };

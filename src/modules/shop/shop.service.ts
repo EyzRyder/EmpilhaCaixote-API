@@ -1,7 +1,7 @@
 import { ShopRepository } from "./shop.repository";
 
 export class ShopService {
-  constructor(private repo: ShopRepository) {}
+  constructor(private repo: ShopRepository) { }
 
   // -------- SKINS --------
   async listSkins() {
@@ -12,12 +12,12 @@ export class ShopService {
     const wallet = await this.repo.getUserWallet(userId);
     const allSkins = await this.repo.getAllSkins();
     const skin = allSkins.find((s) => s.id === skinId);
-    
+
     if (!wallet)
       throw new Error("User Not Found");
     if (!skin) throw new Error("Skin not found");
     const priceGems = skin.priceGems || 0;
-    
+
     if (wallet.gems < priceGems)
       throw new Error("Not enough gems");
 
@@ -40,7 +40,7 @@ export class ShopService {
     const power = allPowers.find((p) => p.id === powerId);
 
     if (!wallet)
-        throw new Error("User Not Found");
+      throw new Error("User Not Found");
     if (!power) throw new Error("Power not found");
     if (wallet.coins < power.priceCoins * amount)
       throw new Error("Not enough coins");
@@ -67,47 +67,48 @@ export class ShopService {
 
   // ShopService.ts (Trecho relevante)
 
-// ...
+  // ...
 
-// -------- TROCA DE MOEDAS/DIAMANTES (NEW) --------
-async exchangeCoinsForGems(
-   userId: string,
-   coinsAmount: number,
-   gemsPrice: number
-) {
-   if (coinsAmount <= 0 || gemsPrice <= 0) {
+  // -------- TROCA DE MOEDAS/DIAMANTES (NEW) --------
+  async exchangeCoinsForGems(
+    userId: string,
+    coinsAmount: number,
+    gemsPrice: number
+  ) {
+    if (coinsAmount <= 0 || gemsPrice <= 0) {
       throw new Error("Amounts must be positive.");
-   }
-   
-   const wallet = await this.repo.getUserWallet(userId);
+    }
+    console.log(coinsAmount, gemsPrice);
 
-   if (!wallet)
+    const wallet = await this.repo.getUserWallet(userId);
+
+    if (!wallet)
       throw new Error("User Not Found");
-   if (wallet.gems < gemsPrice) {
-      throw new Error("Not enough gems"); 
-   }
+    if (wallet.gems < gemsPrice) {
+      throw new Error("Not enough gems");
+    }
 
-   const newGems = wallet.gems - gemsPrice;
-   const newCoins = wallet.coins + coinsAmount;
-   await this.repo.updateWallet(userId, newCoins, newGems); 
+    const newGems = wallet.gems - gemsPrice;
+    const newCoins = wallet.coins + coinsAmount;
+    await this.repo.updateWallet(userId, newCoins, newGems);
 
-   return { newCoins: newCoins, newGems: newGems };
-}
-
-async addGems(
-  userId: string,
-  gemsAmount: number
-) {
-  if (gemsAmount <= 0) {
-    throw new Error("Amount must be positive.");
+    return { newCoins: newCoins, newGems: newGems };
   }
-  
-  const wallet = await this.repo.getUserWallet(userId);
 
-  if (!wallet)
-    throw new Error("User Not Found");
-  const newGems = wallet.gems + gemsAmount;
-  await this.repo.updateWallet(userId, wallet.coins, newGems);
-  return { success: true, newGems: newGems };
-}
+  async addGems(
+    userId: string,
+    gemsAmount: number
+  ) {
+    if (gemsAmount <= 0) {
+      throw new Error("Amount must be positive.");
+    }
+
+    const wallet = await this.repo.getUserWallet(userId);
+
+    if (!wallet)
+      throw new Error("User Not Found");
+    const newGems = wallet.gems + gemsAmount;
+    await this.repo.updateWallet(userId, wallet.coins, newGems);
+    return { success: true, newGems: newGems };
+  }
 }
