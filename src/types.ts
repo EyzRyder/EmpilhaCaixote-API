@@ -12,7 +12,8 @@ import {
 import { WebSocket } from "ws";
 
 export type Player = {
-  ws: WebSocket; // WebSocket connection
+	isReady: boolean; // Added to track if player is ready
+	ws: WebSocket; // WebSocket connection
 } & Pick<User, "id" | "username">;
 
 export type Room = {
@@ -26,6 +27,7 @@ export type Room = {
   turn: number; // index do jogador (0 ou 1)
   gameStarted: boolean;
   blockedColumns: number[];
+  unblockOnTurnEnd: number[];
   timer?: NodeJS.Timeout;
   timeLeft: number;
 };
