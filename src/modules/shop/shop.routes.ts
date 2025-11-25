@@ -66,6 +66,29 @@ const router = Router();
  *         powerId:
  *           type: string
  *           example: "power_speed_03"
+ * 
+ *     BuyGems:
+ *       type: object
+ *       required:
+ *         - gemsAmount
+ *       properties:
+ *         gemsAmount:
+ *           type: number
+ *           example: 100
+ * 
+ *     ExchangeCoins:
+ *       type: object
+ *       required:
+ *         - coinsAmount
+ *         - gemsPrice
+ *       properties:
+ *         coinsAmount:
+ *           type: number
+ *           example: 100
+ *         gemsPrice:
+ *           type: number
+ *           example: 50
+ * 
  */
 
 /**
@@ -177,7 +200,7 @@ router.post("/buy/power", authMiddleware, controller.buyPower);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/BuyPowerInput'
+ *             $ref: '#/components/schemas/BuyGems'
  *     responses:
  *       200:
  *         description: Gem  purchased successfully
@@ -196,5 +219,36 @@ router.post("/buy/power", authMiddleware, controller.buyPower);
  *         description: Power not found
  */
 router.post("/buy/gems", authMiddleware, controller.buyGems);
+
+/**
+ * @swagger
+ * /shop/exchange/coins:
+ *   post:
+ *     summary: Purchase a Coins
+ *     tags: [Shop]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ExchangeCoins'
+ *     responses:
+ *       200:
+ *         description: Coins purchased successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Not enough gems
+ *       404:
+ *         description: User not found
+ */
+router.post("/exchange/coins", authMiddleware, controller.exchangeCoins);
 
 export default router;

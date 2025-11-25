@@ -44,11 +44,33 @@ export class ShopController {
   buyGems = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user!.id;
-      const { amount } = req.body;
+      // Garanta que 'amount' é um número. Usar Number() já está presente na sua controller, mas é bom reforçar.
+      const { gemsAmount } = req.body; 
 
-      const data = await this.service.addGems(userId, Number(amount ?? 1));
+      const result = await this.service.addGems(userId, Number(gemsAmount ?? 0));
 
-      res.json({ message: "Gem purchased", data });
+      // Desestrutura o resultado do service (result) diretamente na resposta JSON
+      res.json({ 
+        message: "Gem purchased", 
+        newGems: result.newGems // Adiciona newGems diretamente
+      });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  };
+
+  exchangeCoins = async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const { coinsAmount, gemsPrice } = req.body; 
+      console.log(coinsAmount, gemsPrice);
+      
+      const result = await this.service.exchangeCoinsForGems(userId, Number(coinsAmount ?? 0), Number(gemsPrice ?? 0));
+      res.json({ 
+        message: "Coins purchased", 
+        newCoins: result.newCoins, 
+        newGems: result.newGems
+      });
     } catch (e: any) {
       res.status(400).json({ error: e.message });
     }
