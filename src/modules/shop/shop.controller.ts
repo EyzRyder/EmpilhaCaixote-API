@@ -33,13 +33,22 @@ export class ShopController {
       const userId = req.user!.id;
       const { powerId, amount } = req.body;
 
-      await this.service.buyPower(
-        userId,
-        Number(powerId),
-        Number(amount ?? 1)
-      );
+      await this.service.buyPower(userId, Number(powerId), Number(amount ?? 1));
 
       res.json({ message: "Power purchased" });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  };
+
+  buyGems = async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const { amount } = req.body;
+
+      const data = await this.service.addGems(userId, Number(amount ?? 1));
+
+      res.json({ message: "Gem purchased", data });
     } catch (e: any) {
       res.status(400).json({ error: e.message });
     }

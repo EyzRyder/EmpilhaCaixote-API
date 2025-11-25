@@ -5,7 +5,6 @@ import { ShopController } from "./shop.controller";
 import { db } from "../../db/db";
 import { authMiddleware } from "../../middleware/auth.middleware";
 
-
 const repo = new ShopRepository(db);
 const service = new ShopService(repo);
 const controller = new ShopController(service);
@@ -87,7 +86,6 @@ const router = Router();
  */
 router.get("/skins", authMiddleware, controller.listSkins);
 
-
 /**
  * @swagger
  * /shop/buy/skin:
@@ -168,4 +166,35 @@ router.get("/powers", authMiddleware, controller.listPowers);
  */
 router.post("/buy/power", authMiddleware, controller.buyPower);
 
-export default router
+/**
+ * @swagger
+ * /shop/buy/gems:
+ *   post:
+ *     summary: Purchase a Gems
+ *     tags: [Shop]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BuyPowerInput'
+ *     responses:
+ *       200:
+ *         description: Gem  purchased successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Not enough coins or invalid power
+ *       404:
+ *         description: Power not found
+ */
+router.post("/buy/gems", authMiddleware, controller.buyGems);
+
+export default router;
