@@ -114,6 +114,11 @@ export default class RoomManager {
 					},
 				});
 
+				this.broadcastByRoom(roomId, {
+					type: "room-updated",
+					content: { room: this.sanitizeRoom(room) },
+				});
+
 				// Update lobby list for everyone
 				this.broadcastRoomList();
 
@@ -184,6 +189,62 @@ export default class RoomManager {
 		);
 
 		this.broadcastRoomList();
+	}
+
+	exitRoom(ws: WebSocket, data: any) {
+		const body = data && data.content ? data.content : data;
+		if (!body) {
+			return ws.send(
+				JSON.stringify({ type: "error", content: { code: "invalid_payload", message: "Dados inválidos" } })
+			);
+		}
+		const { playerId: pId, userId: uId } = body as any;
+		const playerId = pId ?? uId;
+		if (!playerId) {
+			return ws.send(
+				JSON.stringify({ type: "error", content: { code: "missing_fields", message: "playerId é obrigatório" } })
+			);
+		}
+
+		for (const [roomId, room] of this.rooms.entries()) {
+			const idx = room.players.findIndex((p) => p.id === playerId);
+			if (idx !== -1) {
+				const [removed] = room.players.splice(idx, 1);
+				this.stopTimer(room);
+
+				if (room.players.length === 0) {
+					this.rooms.delete(roomId);
+					this.broadcastRoomList();
+					return;
+				}
+
+				if (room.gameStarted) {
+					if (room.players.length === 1) {
+						const remaining = room.players[0];
+						this.endGame(room, remaining.id);
+					}
+				}
+
+				const newOwner = room.players[0];
+				room.name = "Sala de " + newOwner.username;
+
+				this.broadcastByRoom(roomId, {
+					type: "player-left",
+					content: { playerId: removed.id, room: this.sanitizeRoom(room) },
+				});
+
+				this.broadcastByRoom(roomId, {
+					type: "room-updated",
+					content: { room: this.sanitizeRoom(room) },
+				});
+				this.broadcastRoomList();
+				return;
+			}
+		}
+
+		ws.send(
+			JSON.stringify({ type: "error", content: { code: "player_not_found", message: "Jogador não encontrado em nenhuma sala" } })
+		);
 	}
 
 	joinRoom(ws: WebSocket, data: any) {

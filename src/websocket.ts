@@ -74,6 +74,10 @@ export function setupWebSocket(server: any) {
 						rooms.usePower(ws, data);
 						break;
 
+					case "exit_room":
+						rooms.exitRoom(ws, data);
+						break;
+
 					case "start-game":
 						// Some clients may request immediate start; delegate to RoomManager
 						rooms.startGame(ws, data);
