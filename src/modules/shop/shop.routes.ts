@@ -88,8 +88,43 @@ const router = Router();
  *         gemsPrice:
  *           type: number
  *           example: 50
- * 
- */
+ *     SkinInput:
+ *       type: object
+ *       required:
+ *         - name
+ *         - priceGems
+ *         - skinType
+ *       properties:
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *           nullable: true
+ *         priceGems:
+ *           type: number
+ *         skinType:
+ *           type: string
+ *         iconUrl:
+ *           type: string
+ *           nullable: true
+*     ShopPowers:
+ *       type: object
+ *       required:
+ *         - name
+ *         - priceCoins
+ *       properties:
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *           nullable: true
+ *         iconUrl:
+ *           type: string
+ *           nullable: true
+ *         priceCoins:
+ *           type: number
+
+*/
 
 /**
  * @swagger
@@ -141,6 +176,27 @@ router.get("/skins", authMiddleware, controller.listSkins);
 router.post("/buy/skin", authMiddleware, controller.buySkin);
 
 /**
+ * @openapi
+ * /shop/add/skin:
+ *   post:
+ *     tags:
+ *       - Shop
+ *     summary: Create a new skin
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SkinInput'
+ *     responses:
+ *       201:
+ *         description: User successfully created
+ *       400:
+ *         description: Username already exists
+ */
+router.post("/add/skin", authMiddleware, controller.addSkin);
+
+/**
  * @swagger
  * /shop/powers:
  *   get:
@@ -188,6 +244,27 @@ router.get("/powers", authMiddleware, controller.listPowers);
  *         description: Power not found
  */
 router.post("/buy/power", authMiddleware, controller.buyPower);
+
+/**
+ * @openapi
+ * /shop/add/power:
+ *   post:
+ *     tags:
+ *       - Shop
+ *     summary: Create a new power
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/ShopPowers"
+ *     responses:
+ *       201:
+ *         description: Power successfully created
+ *       400:
+ *         description: Bad request
+ */
+router.post("/add/power", authMiddleware, controller.addPower);
 
 /**
  * @swagger

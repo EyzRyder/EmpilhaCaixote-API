@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ShopService } from "./shop.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
+import { ShopPowers, ShopSkins } from "../../types";
 
 export class ShopController {
   constructor(private service: ShopService) { }
@@ -10,6 +11,19 @@ export class ShopController {
     res.json(skins);
   };
 
+  addSkin = async (req: AuthRequest, res: Response) => {
+    try {
+      const payload = req.body as Omit<ShopSkins, "id">;
+
+      const data = await this.service.addSkins(payload);
+
+      res.json({ message: "Skin purchased", data });
+    } catch (e: any) {
+      console.error(e);
+      res.status(400).json({ error: e.message });
+    }
+  }
+
   buySkin = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user!.id;
@@ -17,7 +31,7 @@ export class ShopController {
 
       await this.service.buySkin(userId, Number(skinId));
 
-      res.json({ message: "Skin purchased" });
+      res.json({ message: "Skin added" });
     } catch (e: any) {
       console.error(e);
       res.status(400).json({ error: e.message });
@@ -28,6 +42,19 @@ export class ShopController {
     const powers = await this.service.listPowers();
     res.json(powers);
   };
+
+  addPower = async (req: AuthRequest, res: Response) => {
+    try {
+      const payload = req.body as Omit<ShopPowers, "id">;
+
+      const data = await this.service.addPowers(payload);
+
+      res.json({ message: "Power added", data });
+    } catch (e: any) {
+      console.error(e);
+      res.status(400).json({ error: e.message });
+    }
+  }
 
   buyPower = async (req: AuthRequest, res: Response) => {
     try {

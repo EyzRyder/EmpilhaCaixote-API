@@ -1,6 +1,7 @@
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { and, eq } from "drizzle-orm";
 import * as schema from "../../db/schema";
+import { ShopPowers, ShopSkins } from "../../types";
 
 export class ShopRepository {
     constructor(private db: BetterSQLite3Database<typeof schema>) { }
@@ -9,6 +10,10 @@ export class ShopRepository {
     // ------- SKINS -------
     async getAllSkins() {
         return this.db.select().from(schema.shopSkins);
+    }
+
+    async addSkins(skin: Omit<ShopSkins, "id">) {
+        return this.db.insert(schema.shopSkins).values(skin).run();
     }
 
     async userOwnsSkin(userId: string, skinId: number) {
@@ -27,6 +32,14 @@ export class ShopRepository {
     // ------- POWERS -------
     async getAllPowers() {
         return this.db.select().from(schema.shopPowers);
+    }
+
+    async addPower(power: Omit<ShopPowers, "id">) {
+        return this.db.insert(schema.shopPowers).values(power).run();
+    }
+
+    async addPowers(Powers: ShopPowers) {
+        return this.db.insert(schema.shopPowers).values(Powers).run();
     }
 
     async getUserPower(userId: string, powerId: number) {
@@ -61,9 +74,9 @@ export class ShopRepository {
     // ------- USER WALLET -------
     async getUserWallet(userId: string) {
         return this.db.query.profiles.findFirst({
-          where: eq(schema.profiles.id, userId),
+            where: eq(schema.profiles.id, userId),
         });
-      }
+    }
     async updateUserCoins(userId: string, newCoins: number) {
         await this.db
             .update(schema.profiles)

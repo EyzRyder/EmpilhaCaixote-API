@@ -1,3 +1,5 @@
+import { randomUUID } from "crypto";
+import { ShopPowers, ShopSkins } from "../../types";
 import { ShopRepository } from "./shop.repository";
 
 export class ShopService {
@@ -6,6 +8,11 @@ export class ShopService {
   // -------- SKINS --------
   async listSkins() {
     return this.repo.getAllSkins();
+  }
+
+
+  async addSkins(skins: Omit<ShopSkins, "id">) {
+    return this.repo.addSkins({ ...skins });
   }
 
   async buySkin(userId: string, skinId: number) {
@@ -32,6 +39,10 @@ export class ShopService {
   // -------- POWERS --------
   async listPowers() {
     return this.repo.getAllPowers();
+  }
+
+  async addPowers(powers: Omit<ShopPowers, "id">) {
+    return this.repo.addPower({ ...powers });
   }
 
   async buyPower(userId: string, powerId: number, amount: number) {
