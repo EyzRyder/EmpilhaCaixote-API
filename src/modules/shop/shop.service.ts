@@ -122,4 +122,12 @@ export class ShopService {
     await this.repo.updateWallet(userId, wallet.coins, newGems);
     return { success: true, newGems: newGems };
   }
+
+  // User
+  async getInventory(userId: string,) {
+    const skins = await this.repo.getSkinsWithOwnership(userId);
+    const powers = await this.repo.getPowersWithOwnership(userId);
+
+    return { skins, powers };
+  }
 }

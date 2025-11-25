@@ -328,4 +328,22 @@ router.post("/buy/gems", authMiddleware, controller.buyGems);
  */
 router.post("/exchange/coins", authMiddleware, controller.exchangeCoins);
 
+/**
+ * @swagger
+ * /shop/inventory:
+ *   get:
+ *     summary: List all available powers
+ *     tags: [Shop]
+ *     responses:
+ *       200:
+ *         description: List of powers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Power'
+ */
+router.get("/inventory", authMiddleware, controller.getInventory);
+
 export default router;

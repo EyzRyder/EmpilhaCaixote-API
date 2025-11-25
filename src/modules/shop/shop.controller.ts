@@ -60,8 +60,8 @@ export class ShopController {
     try {
       const userId = req.user!.id;
       const { powerId, amount } = req.body;
-
-      await this.service.buyPower(userId, Number(powerId), Number(amount ?? 1));
+      let amountdefaul = amount ? amount : 1;
+      await this.service.buyPower(userId, Number(powerId), Number(amountdefaul ?? 1));
 
       res.json({ message: "Power purchased" });
     } catch (e: any) {
@@ -83,6 +83,19 @@ export class ShopController {
         message: "Gem purchased",
         newGems: result.newGems // Adiciona newGems diretamente
       });
+    } catch (e: any) {
+      console.error(e);
+      res.status(400).json({ error: e.message });
+    }
+  };
+
+  getInventory = async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user!.id;
+
+      const data = await this.service.getInventory(userId);
+
+      res.json(data);
     } catch (e: any) {
       console.error(e);
       res.status(400).json({ error: e.message });
